@@ -11,7 +11,7 @@ var argv = minimist(process.argv.slice(2), {
   alias: {
     out: 'o',
     diff: 'd',
-    image: 'i',
+    image: 'i'
   }
 })
 

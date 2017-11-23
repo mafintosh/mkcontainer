@@ -16,10 +16,13 @@
     "mkdirp": "^0.5.1",
     "mount-img": "^1.2.0",
     "nspawn-bootstrap": "^1.1.0",
+    "sodium-native": "^2.0.1",
     "sparse-bitfield": "^3.0.3",
     "uint48be": "^1.0.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "standard": "^10.0.3"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/mafintosh/mkcontainer.git"
