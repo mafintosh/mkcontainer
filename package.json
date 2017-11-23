@@ -1,7 +1,7 @@
 {
   "name": "mkcontainer",
   "version": "0.0.0",
-  "description": "WIP - nothing to see here",
+  "description": "Lightweight container builder for Linux backed by make and systemd-nspawn",
   "main": "index.js",
   "bin": {
     "mkcontainer": "./bin/main.sh",
@@ -22,6 +22,9 @@
   },
   "devDependencies": {
     "standard": "^10.0.3"
+  },
+  "scripts": {
+    "test": "standard"
   },
   "repository": {
     "type": "git",

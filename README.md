@@ -1,6 +1,6 @@
 # mkcontainer
 
-A lightweight container builder for Linux backed by `make` and `systemd-nspawn`.
+Lightweight container builder for Linux backed by `make` and `systemd-nspawn`.
 
 ```
 npm install -g mkcontainer
