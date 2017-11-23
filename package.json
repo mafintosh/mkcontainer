@@ -1,0 +1,33 @@
+{
+  "name": "mkcontainer",
+  "version": "0.0.0",
+  "description": "WIP - nothing to see here",
+  "main": "index.js",
+  "bin": {
+    "mkcontainer": "./bin/main.sh",
+    "mkcontainer-diff": "./bin/make-diff.js",
+    "mkcontainer-image": "./bin/make-image.js",
+    "mkcontainer-mount": "./bin/mount.js",
+    "mkcontainer-bootstrap": "./bin/bootstrap.js",
+    "mkcontainer-generate": "./bin/generate.js"
+  },
+  "dependencies": {
+    "minimist": "^1.2.0",
+    "mkdirp": "^0.5.1",
+    "mount-img": "^1.2.0",
+    "nspawn-bootstrap": "^1.1.0",
+    "sparse-bitfield": "^3.0.3",
+    "uint48be": "^1.0.2"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mafintosh/mkcontainer.git"
+  },
+  "author": "Mathias Buus (@mafintosh)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mafintosh/mkcontainer/issues"
+  },
+  "homepage": "https://github.com/mafintosh/mkcontainer"
+}

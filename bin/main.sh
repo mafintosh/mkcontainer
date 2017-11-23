@@ -1,0 +1,2 @@
+mkcontainer-generate "$@"
+make
