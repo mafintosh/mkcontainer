@@ -35,6 +35,8 @@ This should produce a `Makefile`, that is automatically run and a container call
 If you run `mkcontainer` again the build should be cached. Similar to docker, when you update a line in the `Containerfile` you cache invalidate
 every line below it. There is a global cache for each layer stored in `~/.mkcontainer`
 
+To run the produced container do `sudo systemd-nspawn -a -i container.img /bin/bash`
+
 ## Containerfile
 
 The `Containerfile` currently understands the following primitives
