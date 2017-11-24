@@ -68,7 +68,7 @@ function makeShell (inp, i, all) {
 
   switch (inp.type) {
     case 'from':
-      var tmp = '@ mkcontainer-bootstrap --force --' + inp.os + ' ' + (inp.version || '') + ' ' + img
+      var tmp = '@ mkcontainer-bootstrap --force --' + inp.os + (inp.version ? (' ' + inp.version) : '') + ' ' + img
       inp.sh.push(tmp.trim())
       inp.sh.push('@ mkcontainer-diff -i ' + img + ' --tmp ' + diff + ' -o $@')
       inp.input = []
