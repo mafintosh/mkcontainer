@@ -96,7 +96,8 @@ function makeShell (inp, i, all) {
       break
   }
 
-  var hashable = [inp.type, '' + inp.sh.length].concat(inp.sh)
+  // -1 + slice(1) because first line is the echo itself
+  var hashable = [inp.type, '' + inp.sh.length - 1].concat(inp.sh.slice(1))
 
   inp.hash = hashArray(hashable)
   inp.cache = path.join(cache, inp.hash.slice(0, 2), inp.hash.slice(2, 4), inp.hash.slice(4))
