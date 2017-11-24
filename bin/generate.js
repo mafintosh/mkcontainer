@@ -4,12 +4,13 @@ var fs = require('fs')
 var path = require('path')
 var os = require('os')
 var sodium = require('sodium-native')
+var containerfile = require('containerfile')
 
 var input = process.argv[2] || 'Containerfile'
 var container = 'container.img'
 var cache = path.join(os.homedir(), '.mkcontainer/cache')
 
-var c = prepare(parse(fs.readFileSync(input)))
+var c = prepare(containerfile.parse(fs.readFileSync(input)))
 var makefile = generate(c)
 
 fs.writeFileSync('Makefile', makefile)
@@ -64,11 +65,12 @@ function makeShell (inp, i, all) {
   var diff = 'tmp.diff'
   var prev = all.slice(0, i)
 
-  inp.sh.push('@ echo ' + JSON.stringify(inp.line))
+  if (!inp.sh) inp.sh = []
+  inp.sh.push('@ echo ' + JSON.stringify(containerfile.stringify([inp]).trim()))
 
   switch (inp.type) {
     case 'from':
-      var tmp = '@ mkcontainer-bootstrap --force --' + inp.os + (inp.version ? (' ' + inp.version) : '') + ' ' + img
+      var tmp = '@ mkcontainer-bootstrap --force --' + inp.image + (inp.version ? (' ' + inp.version) : '') + ' ' + img
       inp.sh.push(tmp.trim())
       inp.sh.push('@ mkcontainer-diff -i ' + img + ' --tmp ' + diff + ' -o $@')
       inp.input = []
@@ -101,33 +103,6 @@ function makeShell (inp, i, all) {
 
   inp.hash = hashArray(hashable)
   inp.cache = path.join(cache, inp.hash.slice(0, 2), inp.hash.slice(2, 4), inp.hash.slice(4))
-}
-
-function parse (inp) {
-  return inp.toString().trim().split('\n').map(function parse (line) {
-    var i = line.indexOf(' ')
-    var cmd = line.slice(0, i).trim().toLowerCase()
-    var arg = line.slice(i).trim()
-    var args = arg.split(' ')
-    var first = args[0].trim()
-
-    if (cmd === 'force') {
-      var next = parse(line.slice(6).trim())
-      next.force = true
-      return next
-    }
-
-    switch (cmd) {
-      case 'from':
-        return {type: 'from', line: line, os: first.split(':')[0], version: first.split(':')[1], hash: null, sh: []}
-      case 'run':
-        return {type: 'run', line: line, command: arg, hash: null, sh: []}
-      case 'copy':
-        return {type: 'copy', line: line, from: args[0], to: args[1], sh: []}
-      default:
-        throw new Error('Unknown line: ' + line)
-    }
-  })
 }
 
 function hashArray (list) {

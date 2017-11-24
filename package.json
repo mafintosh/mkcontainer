@@ -12,6 +12,7 @@
     "mkcontainer-generate": "./bin/generate.js"
   },
   "dependencies": {
+    "containerfile": "^1.0.0",
     "minimist": "^1.2.0",
     "mkdirp": "^0.5.1",
     "mount-img": "^1.2.0",
