@@ -10,6 +10,9 @@ var input = process.argv[2] || 'Containerfile'
 var container = 'container.img'
 var cache = path.join(os.homedir(), '.mkcontainer/cache')
 
+var env = []
+var arg = []
+
 var c = prepare(containerfile.parse(fs.readFileSync(input)))
 var makefile = generate(c)
 
@@ -26,6 +29,9 @@ function generate (c) {
   make += '\t@ rm -f tmp.img tmp.diff tmp.img.prev\n'
   make += '\t@ mkcontainer-image ' +
     caches.map(c => '-d ' + c + ' ').join('') + '-o $(CONTAINER)\n\n'
+
+  make += 'run: $(CONTAINER)\n'
+  make += '\t@ sudo systemd-nspawn ' + stringifyEnv(env) + '-q -a -i $(CONTAINER) $(ARGV)\n\n'
 
   c.forEach(function (inp) {
     if (inp.force) forcing = true
@@ -55,8 +61,29 @@ function generate (c) {
 }
 
 function prepare (c) {
-  c.forEach(makeShell)
-  return c
+  c = c.filter(function (inp) {
+    if (inp.type === 'env') {
+      env = env.concat(inp.env)
+      return false
+    }
+    // TODO: what to if a build arg is not specified?
+    if (inp.type === 'arg' && inp.value) {
+      arg = arg.concat(inp)
+      return false
+    }
+    inp.env = arg.concat(env)
+    return true
+  })
+
+  return c.map(makeShell)
+}
+
+function stringifyEnv (env) {
+  return env.map(envToString).join('')
+}
+
+function envToString (e) {
+  return '-E ' + e.key + '=' + JSON.stringify(e.value) + ' '
 }
 
 function makeShell (inp, i, all) {
@@ -79,7 +106,7 @@ function makeShell (inp, i, all) {
 
     case 'run':
       inp.sh.push('@ mkcontainer-image ' + prev.map(p => '-d ' + p.cache + ' ').join('') + '-o ' + img)
-      inp.sh.push('@ sudo systemd-nspawn -q -a -i ' + img + ' /bin/sh -c ' + JSON.stringify(inp.command))
+      inp.sh.push('@ sudo systemd-nspawn ' + stringifyEnv(inp.env) + '-q -a -i ' + img + ' /bin/sh -c ' + JSON.stringify(inp.command))
       inp.sh.push('@ mkcontainer-diff ' + prev.map(p => '-d ' + p.cache + ' ').join('') + '-i ' + img + ' --tmp ' + diff + ' -o $@')
       inp.input = prev.map(p => p.cache)
       inp.output = diff
@@ -103,6 +130,8 @@ function makeShell (inp, i, all) {
 
   inp.hash = hashArray(hashable)
   inp.cache = path.join(cache, inp.hash.slice(0, 2), inp.hash.slice(2, 4), inp.hash.slice(4))
+
+  return inp
 }
 
 function hashArray (list) {
