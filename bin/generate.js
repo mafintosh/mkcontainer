@@ -5,11 +5,13 @@ var path = require('path')
 var os = require('os')
 var sodium = require('sodium-native')
 var containerfile = require('containerfile')
+var envString = require('env-string')
 
 var input = process.argv[2] || 'Containerfile'
 var container = 'container.img'
 var cache = path.join(os.homedir(), '.mkcontainer/cache')
 
+var envMap = {}
 var env = []
 var arg = []
 
@@ -23,6 +25,7 @@ function generate (c) {
   var layers = []
   var caches = c.map(inp => inp.cache)
   var forcing = false
+  var lastEnv = c.length ? c[c.length - 1].env : []
 
   make += '$(CONTAINER): ' + input + ' ' + caches.join(' ') + '\n'
   make += '\t@ echo Constructing $(CONTAINER) ...\n'
@@ -31,7 +34,7 @@ function generate (c) {
     caches.map(c => '-d ' + c + ' ').join('') + '-o $(CONTAINER)\n\n'
 
   make += 'run: $(CONTAINER)\n'
-  make += '\t@ sudo systemd-nspawn ' + stringifyEnv(env) + '-q -a -i $(CONTAINER) $(ARGV)\n\n'
+  make += '\t@ sudo systemd-nspawn ' + stringifyEnv(env)  + '-q -a -i $(CONTAINER) $(ARGV)\n\n'
 
   c.forEach(function (inp) {
     if (inp.force) forcing = true
@@ -63,12 +66,12 @@ function generate (c) {
 function prepare (c) {
   c = c.filter(function (inp) {
     if (inp.type === 'env') {
-      env = env.concat(inp.env)
+      env = env.concat(inp.env.map(inline))
       return false
     }
     // TODO: what to if a build arg is not specified?
     if (inp.type === 'arg' && inp.value) {
-      arg = arg.concat(inp)
+      arg = arg.concat(inline(inp))
       return false
     }
     inp.env = arg.concat(env)
@@ -76,14 +79,23 @@ function prepare (c) {
   })
 
   return c.map(makeShell)
+
+  function inline (pair) {
+    var value = envMap[pair.key] = envString(pair.value, envMap)
+    return {key: pair.key, value: value}
+  }
 }
 
 function stringifyEnv (env) {
-  return env.map(envToString).join('')
+  return env.map(toString).join('')
+
+  function toString (e) {
+    return '-E ' + e.key + '=' + e.value + ' '
+  }
 }
 
-function envToString (e) {
-  return '-E ' + e.key + '=' + JSON.stringify(e.value) + ' '
+function stringifyCmd (cmd) { // unsure if this is always safe, but lets try
+  return JSON.stringify(cmd).replace(/\$/g, '\\$$$')
 }
 
 function makeShell (inp, i, all) {
@@ -93,7 +105,7 @@ function makeShell (inp, i, all) {
   var prev = all.slice(0, i)
 
   if (!inp.sh) inp.sh = []
-  inp.sh.push('@ echo ' + JSON.stringify(containerfile.stringify([inp]).trim()))
+  inp.sh.push('@ echo ' + stringifyCmd(containerfile.stringify([inp]).trim()))
 
   switch (inp.type) {
     case 'from':
@@ -106,7 +118,7 @@ function makeShell (inp, i, all) {
 
     case 'run':
       inp.sh.push('@ mkcontainer-image ' + prev.map(p => '-d ' + p.cache + ' ').join('') + '-o ' + img)
-      inp.sh.push('@ sudo systemd-nspawn ' + stringifyEnv(inp.env) + '-q -a -i ' + img + ' /bin/sh -c ' + JSON.stringify(inp.command))
+      inp.sh.push('@ sudo systemd-nspawn ' + stringifyEnv(inp.env) + '-q -a -i ' + img + ' /bin/sh -c ' + stringifyCmd(inp.command))
       inp.sh.push('@ mkcontainer-diff ' + prev.map(p => '-d ' + p.cache + ' ').join('') + '-i ' + img + ' --tmp ' + diff + ' -o $@')
       inp.input = prev.map(p => p.cache)
       inp.output = diff
