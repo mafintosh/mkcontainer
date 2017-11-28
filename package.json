@@ -1,6 +1,6 @@
 {
   "name": "mkcontainer",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Lightweight container builder for Linux backed by make and systemd-nspawn",
   "main": "index.js",
   "bin": {
