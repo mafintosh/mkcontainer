@@ -90,7 +90,7 @@ function stringifyEnv (env) {
   return env.map(toString).join('')
 
   function toString (e) {
-    return '-E ' + e.key + '=' + e.value + ' '
+    return '--setenv ' + e.key + '=' + e.value + ' '
   }
 }
 
@@ -109,7 +109,7 @@ function makeShell (inp, i, all) {
 
   switch (inp.type) {
     case 'from':
-      var tmp = '@ ' + stringifyEnv(inp.env).replace(/-E /g, '') + 'mkcontainer-bootstrap --force --' + inp.image + (inp.version ? (' ' + inp.version) : '') + ' ' + img
+      var tmp = '@ ' + stringifyEnv(inp.env).replace(/--setenv /g, '') + 'mkcontainer-bootstrap --force --' + inp.image + (inp.version ? (' ' + inp.version) : '') + ' ' + img
       inp.sh.push(tmp.trim())
       inp.sh.push('@ mkcontainer-diff -i ' + img + ' --tmp ' + diff + ' -o $@')
       inp.input = []
