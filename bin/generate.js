@@ -34,7 +34,7 @@ function generate (c) {
     caches.map(c => '-d ' + c + ' ').join('') + '-o $(CONTAINER)\n\n'
 
   make += 'run: $(CONTAINER)\n'
-  make += '\t@ sudo systemd-nspawn ' + stringifyEnv(env)  + '-q -a -i $(CONTAINER) $(ARGV)\n\n'
+  make += '\t@ sudo systemd-nspawn ' + stringifyEnv(env)  + '-q --register=no -a -i $(CONTAINER) $(ARGV)\n\n'
 
   c.forEach(function (inp) {
     if (inp.force) forcing = true
@@ -118,7 +118,7 @@ function makeShell (inp, i, all) {
 
     case 'run':
       inp.sh.push('@ mkcontainer-image ' + prev.map(p => '-d ' + p.cache + ' ').join('') + '-o ' + img)
-      inp.sh.push('@ sudo systemd-nspawn ' + stringifyEnv(inp.env) + '-q -a -i ' + img + ' /bin/sh -c ' + stringifyCmd(inp.command))
+      inp.sh.push('@ sudo systemd-nspawn ' + stringifyEnv(inp.env) + '-q --register=no -a -i ' + img + ' /bin/sh -c ' + stringifyCmd(inp.command))
       inp.sh.push('@ mkcontainer-diff ' + prev.map(p => '-d ' + p.cache + ' ').join('') + '-i ' + img + ' --tmp ' + diff + ' -o $@')
       inp.input = prev.map(p => p.cache)
       inp.output = diff
