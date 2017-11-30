@@ -25,7 +25,6 @@ function generate (c) {
   var layers = []
   var caches = c.map(inp => inp.cache)
   var forcing = false
-  var lastEnv = c.length ? c[c.length - 1].env : []
 
   make += '$(CONTAINER): ' + input + ' ' + caches.join(' ') + '\n'
   make += '\t@ echo Constructing $(CONTAINER) ...\n'
@@ -34,7 +33,7 @@ function generate (c) {
     caches.map(c => '-d ' + c + ' ').join('') + '-o $(CONTAINER)\n\n'
 
   make += 'run: $(CONTAINER)\n'
-  make += '\t@ sudo systemd-nspawn ' + stringifyEnv(env)  + '-q --register=no -a -i $(CONTAINER) $(ARGV)\n\n'
+  make += '\t@ sudo systemd-nspawn ' + stringifyEnv(env) + '-q --register=no -a -i $(CONTAINER) $(ARGV)\n\n'
 
   c.forEach(function (inp) {
     if (inp.force) forcing = true
