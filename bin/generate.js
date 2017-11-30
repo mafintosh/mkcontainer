@@ -81,7 +81,7 @@ function prepare (c) {
   return c.map(makeShell)
 
   function inline (pair) {
-    var value = envMap[pair.key] = envString(pair.value, envMap)
+    var value = envMap[pair.key] = envString(pair.value, [envMap, process.env])
     return {key: pair.key, value: value}
   }
 }
