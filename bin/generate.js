@@ -89,7 +89,7 @@ function stringifyEnv (env) {
   return env.map(toString).join('')
 
   function toString (e) {
-    return '--setenv ' + e.key + '=' + e.value + ' '
+    return '--setenv ' + e.key + '=' + e.value.replace(/\$/g, '\\$$$') + ' '
   }
 }
 
