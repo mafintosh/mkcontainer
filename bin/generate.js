@@ -126,7 +126,7 @@ function makeShell (inp, i, all) {
     case 'copy':
       inp.sh.push('@ mkcontainer-image ' + prev.map(p => '-d ' + p.cache + ' ').join('') + '-o ' + img)
       inp.sh.push('@ mkdir -p mnt')
-      inp.sh.push('@ sudo mkcontainer-mount -f ' + img + ' mnt')
+      inp.sh.push('@ mkcontainer-mount -f ' + img + ' mnt')
       inp.sh.push('@ sudo cp -r ' + inp.from + ' mnt' + inp.to)
       inp.sh.push('@ sudo umount mnt')
       inp.sh.push('@ rmdir mnt')
