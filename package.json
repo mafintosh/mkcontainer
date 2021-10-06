@@ -18,7 +18,7 @@
     "mkdirp": "^0.5.1",
     "mount-img": "^1.2.0",
     "nspawn-bootstrap": "^1.1.0",
-    "sodium-native": "^2.0.1",
+    "sodium-native": "^3.2.1",
     "sparse-bitfield": "^3.0.3",
     "uint48be": "^1.0.2"
   },
