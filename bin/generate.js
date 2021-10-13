@@ -14,6 +14,8 @@ var cache = path.join(os.homedir(), '.mkcontainer/cache')
 var envMap = {}
 var env = []
 var arg = []
+var cmd = ''
+var bind = []
 
 var c = prepare(resolve(input))
 var makefile = generate(c)
@@ -33,13 +35,13 @@ function generate (c) {
     caches.map(c => '-d ' + c + ' ').join('') + '-o $(CONTAINER)\n\n'
 
   make += 'run: $(CONTAINER)\n'
-  make += '\t@ sudo systemd-nspawn ' + stringifyEnv(env) + '-q --register=no -a -i $(CONTAINER) $(ARGV)\n\n'
+  make += '\t@ sudo systemd-nspawn ' + stringifyEnv(env) + '-q --register=no -a -i $(CONTAINER) $(BIND) $(ARGV)\n\n'
 
   make += 'clean:\n'
-  make += '\t@ rm -f ' + caches.join(' ') + '\n\n'
+  make += '\t@ rm -f tmp.img tmp.diff tmp.img.prev $(CONTAINER) ' + caches.map(c => ' ' + c).join('') + '\n\n'
 
   make += 'clean-all:\n'
-  make += '\t@ rm -rf $(CACHE)\n\n'
+  make += '\t@ rm -rf tmp.img tmp.diff tmp.img.prev $(CACHE) $(CONTAINER)\n\n'
 
   c.forEach(function (inp) {
     if (inp.force) forcing = true
@@ -56,7 +58,9 @@ function generate (c) {
     make = make.replace(new RegExp(inp.cache.replace('$(CACHE)', '\\$\\(CACHE\\)'), 'g'), '$(' + id + ')')
   })
 
-  var vars = 'CONTAINER=' + container + '\n' +
+  var vars = (cmd ? 'ARGV=' + cmd + '\n' : '') +
+    (bind.length ? 'BIND=' + bind.join(' ') + '\n' : '') +
+    'CONTAINER=' + container + '\n' +
     'CACHE=' + cache + '\n'
 
   make = vars + layers.join('\n') + '\n\n' + make.trim()
@@ -91,6 +95,14 @@ function prepare (c) {
     // TODO: what to if a build arg is not specified?
     if (inp.type === 'arg' && inp.value) {
       arg = arg.concat(inline(inp))
+      return false
+    }
+    if (inp.type === 'cmd') {
+      cmd = inp.command
+      return false
+    }
+    if (inp.type === 'mount') {
+      bind.push('--bind ' + path.resolve(inp.from) + ':' + inp.to)
       return false
     }
     inp.env = arg.concat(env)
