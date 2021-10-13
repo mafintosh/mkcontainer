@@ -35,6 +35,12 @@ function generate (c) {
   make += 'run: $(CONTAINER)\n'
   make += '\t@ sudo systemd-nspawn ' + stringifyEnv(env) + '-q --register=no -a -i $(CONTAINER) $(ARGV)\n\n'
 
+  make += 'clean:\n'
+  make += '\t@ rm -f ' + caches.join(' ') + '\n\n'
+
+  make += 'clean-all:\n'
+  make += '\t@ rm -rf $(CACHE)\n\n'
+
   c.forEach(function (inp) {
     if (inp.force) forcing = true
     make += inp.cache + ': ' + (inp.force ? '.force ' : '') + inp.input.join(' ') + '\n'
