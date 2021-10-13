@@ -35,15 +35,18 @@ This should produce a `Makefile`, that is automatically run and a container call
 If you run `mkcontainer` again the build should be cached. Similar to docker, when you update a line in the `Containerfile` you cache invalidate
 every line below it. There is a global cache for each layer stored in `~/.mkcontainer`
 
-To run the produced container do `sudo systemd-nspawn -a -i container.img /bin/bash`
+To run the produced container simply do `make run` but you can also run it with systemd, ie `sudo systemd-nspawn -a -i container.img /bin/bash`
 
 ## Containerfile
 
 The `Containerfile` currently understands the following primitives
 
-* `FROM os:version` - will bootstrap your container. `os` can be `Ubuntu`, `Arch` and `Debian` currently. Note that `Arch doesn't have a version.
+* `FROM os:version` - will bootstrap your container. `os` can be `Ubuntu`, `Arch`, `Alpine` and `Debian` currently. Note that `Arch` and `Alpine` doesn't have a version.
 * `RUN cmd` - run a shell command inside the container
+* `ENV name=value, name=value...` - set env vars for the script. You can use host env resolution in the values.
 * `COPY from to` - copy a file into the container. `to` should be an absolute path.
+* `MOUNT from to` - auto mount a folder from the host into the container when running
+* `CMD cmd` - the command to execute when the container runs
 
 ## License
 
