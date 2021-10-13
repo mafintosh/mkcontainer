@@ -61,7 +61,7 @@ function generate (c) {
 
   var vars = (cmd ? 'ARGV=' + cmd + '\n' : '') +
     (bind.length ? 'BIND=' + bind.join(' ') + '\n' : '') +
-    'USER=' + user + '\n' : '' +
+    'USER=' + user + '\n' +
     'CONTAINER=' + container + '\n' +
     'CACHE=' + cache + '\n'
 
