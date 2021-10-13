@@ -36,7 +36,7 @@ function generate (c) {
     caches.map(c => '-d ' + c + ' ').join('') + '-o $(CONTAINER)\n\n'
 
   make += 'run: $(CONTAINER)\n'
-  make += '\t@ sudo systemd-nspawn ' + stringifyEnv(env) + '-q --register=no -a -u $(USER) -i $(CONTAINER) $(BIND) $(ARGV)\n\n'
+  make += '\t@ sudo systemd-nspawn ' + stringifyEnv(env) + '-q --register=no -a -u $(USER) -i $(CONTAINER) $(BIND) $(CMD) $(ARGV)\n\n'
 
   make += 'clean:\n'
   make += '\t@ rm -f tmp.img tmp.diff tmp.img.prev $(CONTAINER) ' + caches.map(c => ' ' + c).join('') + '\n\n'
@@ -59,7 +59,7 @@ function generate (c) {
     make = make.replace(new RegExp(inp.cache.replace('$(CACHE)', '\\$\\(CACHE\\)'), 'g'), '$(' + id + ')')
   })
 
-  var vars = (cmd ? 'ARGV=' + cmd + '\n' : '') +
+  var vars = (cmd ? 'CMD=' + cmd + '\n' : '') +
     (bind.length ? 'BIND=' + bind.join(' ') + '\n' : '') +
     'USER=' + user + '\n' +
     'CONTAINER=' + container + '\n' +
