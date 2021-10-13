@@ -39,7 +39,7 @@ function generate (c) {
   make += '\t@ sudo systemd-nspawn ' + stringifyEnv(env) + '-q --register=no -a -u $(USER) -i $(CONTAINER) $(BIND) $(CMD) $(ARGV)\n\n'
 
   make += 'clean:\n'
-  make += '\t@ rm -f tmp.img tmp.diff tmp.img.prev $(CONTAINER) ' + caches.map(c => ' ' + c).join('') + '\n\n'
+  make += '\t@ rm -f tmp.img tmp.diff tmp.img.prev $(CONTAINER)' + caches.map(c => ' ' + c).join('') + '\n\n'
 
   make += 'clean-all:\n'
   make += '\t@ rm -rf tmp.img tmp.diff tmp.img.prev $(CACHE) $(CONTAINER)\n\n'
