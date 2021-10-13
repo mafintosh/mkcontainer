@@ -15,7 +15,7 @@ var envMap = {}
 var env = []
 var arg = []
 
-var c = prepare(containerfile.parse(fs.readFileSync(input)))
+var c = prepare(resolve(input))
 var makefile = generate(c)
 
 fs.writeFileSync('Makefile', makefile)
@@ -60,6 +60,20 @@ function generate (c) {
   }
 
   return make.trim() + '\n'
+}
+
+function resolve (filename, result) {
+  if (!result) result = []
+
+  containerfile.parse(fs.readFileSync(filename)).forEach(function (inp) {
+    if (inp.type === 'from' && inp.path) {
+      resolve(path.resolve(path.dirname(filename), inp.path), result)
+    } else {
+      result.push(inp)
+    }
+  })
+
+  return result
 }
 
 function prepare (c) {
